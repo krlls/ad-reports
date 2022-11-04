@@ -16,7 +16,14 @@ export const respond200json = <A extends string, B>(ctx: RouterContext, body?: R
 }
 
 export const respond200plain = (ctx: RouterContext, body: string) => {
+  ctx.status = 200
   ctx.type = 'text/plain'
+  ctx.body = body
+}
+
+export const respond200Html = (ctx: RouterContext, body: string) => {
+  ctx.status = 200
+  ctx.type = 'text/html'
   ctx.body = body
 }
 
