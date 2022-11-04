@@ -1,4 +1,4 @@
-import * as Router from 'koa-router'
+import Router from 'koa-router'
 
 import { vkRoutes } from './vkRoutes'
 import { respond200plain } from '../utils/response'

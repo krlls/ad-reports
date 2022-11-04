@@ -8,8 +8,8 @@ export const VK_AUTH_LINK =
   process.env.VK_AUTH_LINK ||
   `https://oauth.vk.com/authorize?client_id=${VK_APP_ID}
 &display=page
-&redirect_uri=http://vk.com/
-&scope=stats,groups
+&redirect_uri=http://localhost:3000/vk/token/
+&scope=wall,stats,groups
 &response_type=token
 &v=5.131
 `

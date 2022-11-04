@@ -5,3 +5,7 @@ export const saveTokenReq = Joi.object({
   expires_in: Joi.number(),
   user_id: Joi.number(),
 })
+
+export const postsReq = Joi.object({
+  groupId: Joi.number().integer().required(),
+})

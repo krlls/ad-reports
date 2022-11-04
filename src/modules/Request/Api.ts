@@ -1,19 +1,22 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 
+interface CustomConfig<Req> extends AxiosRequestConfig<Req> {
+  params?: Req,
+}
+
 export class Api {
-  baseUrl: string
+  readonly baseUrl: string
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl
   }
 
-  req<Resp = any>(restConfig: AxiosRequestConfig, token?: string) {
+  req<Req = any, Resp = any>(restConfig: CustomConfig<Req>, token?: string) {
     return axios
       .create({
         baseURL: this.baseUrl,
         headers: {
           Accept: '*/*',
-          'Content-Type': 'application/json',
           ...(token && { Authorization: 'Token ' + token }),
         },
       })(restConfig)
@@ -22,12 +25,12 @@ export class Api {
           return response.data
         }
 
-        return
+        return undefined
       })
       .catch((e: AxiosError) => {
         // eslint-disable-next-line no-console
         console.warn('[App Api] Error:', e.response?.status, e.response?.statusText)
-        return
+        return undefined
       })
   }
 }
