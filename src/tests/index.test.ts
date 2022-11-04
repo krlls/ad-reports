@@ -1,4 +1,5 @@
-import * as request from 'supertest'
+import { expect, test } from '@jest/globals'
+import request from 'supertest'
 
 import { App } from '../modules/App'
 
