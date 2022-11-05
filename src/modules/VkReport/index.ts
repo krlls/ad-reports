@@ -98,6 +98,7 @@ export class VkReport implements IVKReport {
 
     VkReportLogger.info('setReports', reports.length)
 
+    await this.sheet.insertDimension('ROWS', { startIndex: 1, endIndex: reports.length + 1 })
     await this.sheet.addRows(reports)
   }
 
