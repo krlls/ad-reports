@@ -1,4 +1,6 @@
 /*eslint-disable no-console*/
+import moment from 'moment'
+
 enum ELogType {
   WARN = 'WARN',
   ERROR = 'ERROR',
@@ -17,7 +19,7 @@ abstract class Logger {
       [ELogType.INFO]: console.info,
     }[type]
 
-    return log(`${type} [${name}]`, ...args)
+    return log(`[${moment().format('YY-MM-DD hh:mm:ss:SS')}] ${type} [${name}]`, ...args)
   }
 
   protected static logInfo(name: string, ...args: any) {
