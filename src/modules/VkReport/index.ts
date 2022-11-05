@@ -116,7 +116,7 @@ export class VkReport implements IVKReport {
 
     VkReportLogger.info('getLatestPost', latest.formattedValue)
 
-    return moment(latest.formattedValue, 'YYYY-MM-DD h:mm')
+    return moment(latest.formattedValue, 'YYYY-MM-DD HH:mm')
   }
 
   async generatePostReport(): Promise<boolean> {

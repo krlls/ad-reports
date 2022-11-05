@@ -10,7 +10,7 @@ export const mapVkPosts = (posts: Request.Vk.Posts.GetPosts.Wall.Item[]): VkPost
     id: toString(post.id),
     ownerId: toString(post.owner_id),
     fromId: toString(post.from_id),
-    date: moment.unix(post.date).format('YYYY-MM-DD hh:mm'),
+    date: moment.unix(post.date).format('YYYY-MM-DD HH:mm'),
     likes: post.likes?.count || 0,
     reposts: post.reposts?.count || 0,
     comments: post.comments?.count || 0,
