@@ -1,14 +1,15 @@
 import { RouterContext } from 'koa-router'
 
 import { respond200Html, respond200json, respond200plain, respond400 } from '../utils/response'
-import { VK_AUTH_LINK, VK_TOKEN } from '../config'
+import { SHEET_ID, VK_AUTH_LINK, VK_TOKEN } from '../config'
 import { Api } from '../types/TApi'
-import { postsReq, postsStatsReq, saveTokenReq } from '../validators/postsSchemes'
+import { postsReq, postsStatsReq, reportReq, saveTokenReq } from '../validators/postsSchemes'
 import { validate } from '../utils/validate'
 import { VkRequest } from '../modules/Request'
 import { toVkId } from '../utils/links'
 import { VkImporter } from '../modules/VkImporter'
 import { NodeApiLogger } from '../modules/Logger'
+import { VkReport } from '../modules/VkReport'
 
 export const getAuth = async (ctx: RouterContext) => {
   const html = `
@@ -65,4 +66,26 @@ export const postsStats = async (ctx: RouterContext, params: Api.Vk.PostStats.Re
 
   respond200json(ctx, resp)
   NodeApiLogger.info('PostsStats: Success')
+}
+
+export const report = async (ctx: RouterContext, params: Api.Vk.Report.Req) => {
+  if (validate(reportReq, params)) {
+    NodeApiLogger.error('Report: Validate error')
+    return respond400(ctx)
+  }
+  const vkApi = new VkRequest(VK_TOKEN)
+  const vkImporter = new VkImporter(vkApi)
+
+  const report = new VkReport({
+    sheetId: SHEET_ID,
+    groupId: toVkId(params.groupId),
+    importer: vkImporter,
+  })
+
+  const result = await report.generatePostReport()
+
+  const resp: Api.Vk.Report.Resp = { success: result }
+
+  respond200json(ctx, resp)
+  NodeApiLogger.info('Report: Success')
 }

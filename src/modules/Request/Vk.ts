@@ -26,6 +26,7 @@ export class VkRequest implements Request.Vk.Api {
         access_token: this.token,
         owner_id: groupId,
         v: this.apiVersion,
+        count: 30,
       },
     })
   }

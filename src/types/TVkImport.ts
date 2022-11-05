@@ -11,6 +11,9 @@ export interface VkPost {
   fromId: string,
   ownerId: string,
   date: string,
+  reposts: number,
+  likes: number,
+  comments: number,
 }
 
 export type VkPostStats = {

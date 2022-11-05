@@ -15,3 +15,7 @@ export const postsStatsReq = Joi.object({
   postIds: Joi.array().items(Joi.string()),
   postId: Joi.string(),
 })
+
+export const reportReq = Joi.object({
+  groupId: Joi.number().integer().required(),
+})

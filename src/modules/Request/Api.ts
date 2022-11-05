@@ -23,7 +23,10 @@ export class Api {
         },
       })(restConfig)
       .then((response: AxiosResponse<Resp>) => {
-        ReqApiLogger.info('Success', `status ${response.status}`)
+        ;(response.data as any)?.error
+          ? ReqApiLogger.error(response.data)
+          : ReqApiLogger.info('Success', `status ${response.status}`)
+
         if (response.data) {
           return response.data
         }

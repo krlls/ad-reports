@@ -1,6 +1,6 @@
 import { isArray } from 'lodash'
 
-import { VkImport } from '../../types/TVkApi'
+import { VkImport } from '../../types/TVkImport'
 import { mapVkPosts, mapVkPostStats } from '../../utils/mappers/vkMappers'
 import { Request } from '../../types/TRequest'
 

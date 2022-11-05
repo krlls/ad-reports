@@ -11,6 +11,7 @@ enum ELogType {
 enum ELogger {
   REQUEST = 'Remote api',
   API = 'Node Api',
+  VK_REPORT = 'Vk Report',
 }
 
 abstract class Logger {
@@ -62,5 +63,19 @@ export class NodeApiLogger extends Logger {
 
   static error(...args: any) {
     return this.logError(ELogger.API, ...args)
+  }
+}
+
+export class VkReportLogger extends Logger {
+  static info(...args: any) {
+    return this.logInfo(ELogger.VK_REPORT, ...args)
+  }
+
+  static warn(...args: any) {
+    return this.logWarn(ELogger.VK_REPORT, ...args)
+  }
+
+  static error(...args: any) {
+    return this.logError(ELogger.VK_REPORT, ...args)
   }
 }

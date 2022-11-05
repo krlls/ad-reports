@@ -1,4 +1,4 @@
-import { VkPost, VkPostStats } from './TVkApi'
+import { VkPost, VkPostStats } from './TVkImport'
 
 export namespace Api {
   export namespace Vk {
@@ -38,6 +38,16 @@ export namespace Api {
       }
 
       export type Resp = { stats: VkPostStats[] }
+    }
+
+    export namespace Report {
+      export const URL = '/report'
+
+      export type Req = {
+        groupId: number,
+      }
+
+      export type Resp = { success: boolean }
     }
   }
 }
