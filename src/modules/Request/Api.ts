@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 
-import { ApiLogger } from '../Logger'
+import { ReqApiLogger } from '../Logger'
 
 interface CustomConfig<Req> extends AxiosRequestConfig<Req> {
   params?: Req,
@@ -23,7 +23,7 @@ export class Api {
         },
       })(restConfig)
       .then((response: AxiosResponse<Resp>) => {
-        ApiLogger.info('Success', `status ${response.status}`)
+        ReqApiLogger.info('Success', `status ${response.status}`)
         if (response.data) {
           return response.data
         }
@@ -31,7 +31,7 @@ export class Api {
         return undefined
       })
       .catch((e: AxiosError) => {
-        ApiLogger.error(e.response?.status, e.response?.statusText)
+        ReqApiLogger.error(e.response?.status, e.response?.statusText)
         return undefined
       })
   }

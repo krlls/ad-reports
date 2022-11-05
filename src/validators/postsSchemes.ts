@@ -9,3 +9,9 @@ export const saveTokenReq = Joi.object({
 export const postsReq = Joi.object({
   groupId: Joi.number().integer().required(),
 })
+
+export const postsStatsReq = Joi.object({
+  groupId: Joi.number().integer().required(),
+  postIds: Joi.array().items(Joi.string()),
+  postId: Joi.string(),
+})

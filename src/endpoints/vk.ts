@@ -3,11 +3,12 @@ import { RouterContext } from 'koa-router'
 import { respond200Html, respond200json, respond200plain, respond400 } from '../utils/response'
 import { VK_AUTH_LINK, VK_TOKEN } from '../config'
 import { Api } from '../types/TApi'
-import { postsReq, saveTokenReq } from '../validators/postsSchemes'
+import { postsReq, postsStatsReq, saveTokenReq } from '../validators/postsSchemes'
 import { validate } from '../utils/validate'
 import { VkRequest } from '../modules/Request'
 import { toVkId } from '../utils/links'
 import { VkImporter } from '../modules/VkImporter'
+import { NodeApiLogger } from '../modules/Logger'
 
 export const getAuth = async (ctx: RouterContext) => {
   const html = `
@@ -21,18 +22,22 @@ export const getAuth = async (ctx: RouterContext) => {
 `
 
   respond200Html(ctx, html)
+  NodeApiLogger.info('GetAuthLink: Success')
 }
 
 export const saveToken = async (ctx: RouterContext, params: Api.Vk.SaveToken.Req) => {
   if (validate(saveTokenReq, params)) {
+    NodeApiLogger.error('SaveToken: Validate error')
     return respond400(ctx)
   }
 
   respond200plain(ctx, 'token: ')
+  NodeApiLogger.info('SaveToken: Success')
 }
 
 export const posts = async (ctx: RouterContext, params: Api.Vk.Posts.Req) => {
   if (validate(postsReq, params)) {
+    NodeApiLogger.error('Posts: Validate error')
     return respond400(ctx)
   }
   const vkApi = new VkRequest(VK_TOKEN)
@@ -43,4 +48,21 @@ export const posts = async (ctx: RouterContext, params: Api.Vk.Posts.Req) => {
   const resp: Api.Vk.Posts.Resp = { posts }
 
   respond200json(ctx, resp)
+  NodeApiLogger.info('Posts: Success')
+}
+
+export const postsStats = async (ctx: RouterContext, params: Api.Vk.PostStats.Req) => {
+  if (validate(postsStatsReq, params)) {
+    NodeApiLogger.error('PostsStats: Validate error')
+    return respond400(ctx)
+  }
+  const vkApi = new VkRequest(VK_TOKEN)
+  const vkImporter = new VkImporter(vkApi)
+
+  const stats = await vkImporter.postsStats(toVkId(params.groupId), params.postId || params.postIds || '')
+
+  const resp: Api.Vk.PostStats.Resp = { stats }
+
+  respond200json(ctx, resp)
+  NodeApiLogger.info('PostsStats: Success')
 }

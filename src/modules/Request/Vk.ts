@@ -1,7 +1,9 @@
+import { isArray } from 'lodash'
+
 import { Api } from './Api'
 import { VK_URl } from '../../config'
 import { Request } from '../../types/TRequest'
-import { ApiLogger } from '../Logger'
+import { ReqApiLogger } from '../Logger'
 
 export class VkRequest implements Request.Vk.Api {
   private readonly token: string
@@ -12,7 +14,7 @@ export class VkRequest implements Request.Vk.Api {
     this.token = token
   }
 
-  logReq = (name: string, data: Record<string, any>) => ApiLogger.info(`Req ${name}`, data)
+  logReq = (name: string, data: Record<string, any>) => ReqApiLogger.info(`VK Req ${name}`, data)
 
   async getPosts(groupId: string) {
     this.logReq('getPosts', { groupId })
@@ -23,6 +25,22 @@ export class VkRequest implements Request.Vk.Api {
       params: {
         access_token: this.token,
         owner_id: groupId,
+        v: this.apiVersion,
+      },
+    })
+  }
+
+  getPostStats(groupId: string, postId: string | string[]) {
+    this.logReq('getPostStats', { groupId, postId })
+    const postIdArr = isArray(postId) ? postId : [postId]
+
+    return this.api.req<Request.Vk.Stats.Post.Params, Request.Vk.Stats.Post.Resp>({
+      method: Request.Vk.Stats.Post.METHOD,
+      url: Request.Vk.Stats.Post.URL,
+      params: {
+        access_token: this.token,
+        owner_id: groupId,
+        post_ids: postIdArr,
         v: this.apiVersion,
       },
     })

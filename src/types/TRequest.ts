@@ -2,6 +2,7 @@ export namespace Request {
   export namespace Vk {
     export interface Api {
       getPosts(groupId: string): Promise<Posts.GetPosts.Resp | undefined>,
+      getPostStats(groupId: string, postId: string | string[]): Promise<Stats.Post.Resp | undefined>,
     }
 
     export interface BaseParams {
@@ -255,6 +256,36 @@ export namespace Request {
           export interface Views {
             count: number,
           }
+        }
+      }
+    }
+
+    export namespace Stats {
+      export namespace Post {
+        export const URL = 'stats.getPostReach'
+        export const METHOD = 'GET'
+
+        export interface Params extends BaseParams {
+          owner_id: string,
+          post_ids: string[],
+        }
+
+        export type PostStat = {
+          post_id: number,
+          hide: number,
+          join_group: number,
+          links: number,
+          reach_subscribers: number,
+          reach_total: number,
+          reach_viral: number,
+          reach_ads: number,
+          report: number,
+          to_group: number,
+          unsubscribe: number,
+        }
+
+        export type Resp = {
+          response: PostStat[],
         }
       }
     }
