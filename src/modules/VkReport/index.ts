@@ -5,7 +5,7 @@ import { IVKReport } from '../../types/TVkReport'
 import { VkImport } from '../../types/TVkImport'
 import { VkImporter } from '../VkImporter'
 import { createVkReport, vkReportsToRows } from '../../utils/mappers/vkMappers'
-import { GOOGLE_PRIVATE_KEY, GOOGLE_SERVICE_ACCOUNT_EMAIL } from '../../config'
+import { GOOGLE_PRIVATE_KEY, GOOGLE_SERVICE_ACCOUNT_EMAIL, REPORT_TIME_FORMAT } from '../../config'
 import { VkReportLogger } from '../Logger'
 
 export class VkReport implements IVKReport {
@@ -116,7 +116,7 @@ export class VkReport implements IVKReport {
 
     VkReportLogger.info('getLatestPost', latest.formattedValue)
 
-    return moment(latest.formattedValue, 'YYYY-MM-DD HH:mm')
+    return moment(latest.formattedValue, REPORT_TIME_FORMAT)
   }
 
   async generatePostReport(): Promise<boolean> {

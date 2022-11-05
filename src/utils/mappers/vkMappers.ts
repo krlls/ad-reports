@@ -4,13 +4,14 @@ import { toString } from 'lodash'
 import { Request } from '../../types/TRequest'
 import { VkPost, VkPostStats } from '../../types/TVkImport'
 import { VKPostReport } from '../../types/TVkReport'
+import { REPORT_TIME_FORMAT } from '../../config'
 
 export const mapVkPosts = (posts: Request.Vk.Posts.GetPosts.Wall.Item[]): VkPost[] => {
   return posts.map((post) => ({
     id: toString(post.id),
     ownerId: toString(post.owner_id),
     fromId: toString(post.from_id),
-    date: moment.unix(post.date).format('YYYY-MM-DD HH:mm'),
+    date: moment.unix(post.date).format(REPORT_TIME_FORMAT),
     likes: post.likes?.count || 0,
     reposts: post.reposts?.count || 0,
     comments: post.comments?.count || 0,
