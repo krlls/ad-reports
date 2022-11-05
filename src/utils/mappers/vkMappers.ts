@@ -9,5 +9,5 @@ export const mapVkPosts = (posts: Request.Vk.Posts.GetPosts.Wall.Item[]): VkPost
     id: toString(post.id),
     ownerId: toString(post.owner_id),
     fromId: toString(post.from_id),
-    date: moment(post.date),
+    date: moment(post.date).format('YYYY-MM-DD'),
   }))

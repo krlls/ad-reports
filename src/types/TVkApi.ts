@@ -1,5 +1,3 @@
-import { Moment } from 'moment'
-
 import { Request } from './TRequest'
 
 export abstract class VkImport {
@@ -12,5 +10,5 @@ export interface VkPost {
   id: string,
   fromId: string,
   ownerId: string,
-  date: Moment,
+  date: string,
 }

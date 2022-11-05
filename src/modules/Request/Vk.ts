@@ -1,6 +1,7 @@
 import { Api } from './Api'
 import { VK_URl } from '../../config'
 import { Request } from '../../types/TRequest'
+import { ApiLogger } from '../Logger'
 
 export class VkRequest implements Request.Vk.Api {
   private readonly token: string
@@ -11,7 +12,11 @@ export class VkRequest implements Request.Vk.Api {
     this.token = token
   }
 
+  logReq = (name: string, data: Record<string, any>) => ApiLogger.info(`Req ${name}`, data)
+
   async getPosts(groupId: string) {
+    this.logReq('getPosts', { groupId })
+
     return this.api.req<Request.Vk.Posts.GetPosts.Params, Request.Vk.Posts.GetPosts.Resp>({
       method: Request.Vk.Posts.GetPosts.METHOD,
       url: Request.Vk.Posts.GetPosts.URL,

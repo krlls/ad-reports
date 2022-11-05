@@ -1,5 +1,7 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 
+import { ApiLogger } from '../Logger'
+
 interface CustomConfig<Req> extends AxiosRequestConfig<Req> {
   params?: Req,
 }
@@ -21,6 +23,7 @@ export class Api {
         },
       })(restConfig)
       .then((response: AxiosResponse<Resp>) => {
+        ApiLogger.info('Success', `status ${response.status}`)
         if (response.data) {
           return response.data
         }
@@ -28,8 +31,7 @@ export class Api {
         return undefined
       })
       .catch((e: AxiosError) => {
-        // eslint-disable-next-line no-console
-        console.warn('[App Api] Error:', e.response?.status, e.response?.statusText)
+        ApiLogger.error(e.response?.status, e.response?.statusText)
         return undefined
       })
   }
