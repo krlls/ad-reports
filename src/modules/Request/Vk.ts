@@ -1,18 +1,24 @@
 import { Api } from './Api'
-import { VK_TOKEN, VK_URl } from '../../config'
+import { VK_URl } from '../../config'
 import { Request } from '../../types/TRequest'
 
-export class VkRequest {
-  private static api: Api = new Api(VK_URl)
+export class VkRequest implements Request.Vk.Api {
+  private readonly token: string
+  private readonly api: Api = new Api(VK_URl)
+  private readonly apiVersion = '5.131'
 
-  static getPosts = (groupId: string) => {
-    return this.api.req<Request.Posts.GetPosts.Params, Request.Posts.GetPosts.Resp>({
-      method: Request.Posts.GetPosts.METHOD,
-      url: Request.Posts.GetPosts.URL,
+  constructor(token: string) {
+    this.token = token
+  }
+
+  async getPosts(groupId: string) {
+    return this.api.req<Request.Vk.Posts.GetPosts.Params, Request.Vk.Posts.GetPosts.Resp>({
+      method: Request.Vk.Posts.GetPosts.METHOD,
+      url: Request.Vk.Posts.GetPosts.URL,
       params: {
-        access_token: VK_TOKEN,
+        access_token: this.token,
         owner_id: groupId,
-        v: '5.131',
+        v: this.apiVersion,
       },
     })
   }

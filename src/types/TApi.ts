@@ -1,4 +1,4 @@
-import { IVkApi } from './TVkImport'
+import { VkPost } from './TVkApi'
 
 export namespace Api {
   export namespace Vk {
@@ -25,7 +25,7 @@ export namespace Api {
         groupId: number,
       }
 
-      export type Resp = IVkApi.Wall.Response
+      export type Resp = { posts: VkPost[] }
     }
   }
 }
