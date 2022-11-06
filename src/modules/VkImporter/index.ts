@@ -1,8 +1,9 @@
-import { isArray } from 'lodash'
+import { flatten, isArray } from 'lodash'
 
 import { VkImport } from '../../types/TVkImport'
 import { mapVkPosts, mapVkPostStats } from '../../utils/mappers/vkMappers'
 import { Request } from '../../types/TRequest'
+import { chunkRequest } from '../../utils/request'
 
 export class VkImporter implements VkImport {
   api: Request.Vk.Api
@@ -22,12 +23,16 @@ export class VkImporter implements VkImport {
   }
 
   async postsStats(groupId: string, postId: string | string[]) {
-    const stats = await this.api.getPostStats(groupId, postId)
+    const postIds = isArray(postId) ? postId : [postId]
+    const statsData = await chunkRequest((posts) => this.api.getPostStats(groupId, posts), postIds, 30)
+    const stats = flatten(
+      statsData.filter((s) => !!s).map((s) => (s as NonNullable<Request.Vk.Stats.Post.Resp>).response),
+    )
 
-    if (!stats || !isArray(stats.response)) {
+    if (!stats || !isArray(stats)) {
       return []
     }
 
-    return mapVkPostStats(stats.response)
+    return mapVkPostStats(stats)
   }
 }
