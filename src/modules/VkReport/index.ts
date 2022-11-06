@@ -1,11 +1,11 @@
 import moment, { Moment } from 'moment'
 import { GoogleSpreadsheet, GoogleSpreadsheetWorksheet } from 'google-spreadsheet'
 
-import { IVKReport } from '../../types/TVkReport'
+import { IVKReport, VKPostReport } from '../../types/TVkReport'
 import { VkImport } from '../../types/TVkImport'
 import { VkImporter } from '../VkImporter'
 import { createVkReport, vkReportsToRows } from '../../utils/mappers/vkMappers'
-import { GOOGLE_PRIVATE_KEY, GOOGLE_SERVICE_ACCOUNT_EMAIL, REPORT_TIME_FORMAT } from '../../config'
+import { GOOGLE_PRIVATE_KEY, GOOGLE_SERVICE_ACCOUNT_EMAIL } from '../../config'
 import { VkReportLogger } from '../Logger'
 
 export class VkReport implements IVKReport {
@@ -13,10 +13,18 @@ export class VkReport implements IVKReport {
   private groupId: string
   private doc: GoogleSpreadsheet
   private sheet: GoogleSpreadsheetWorksheet | undefined
+  private title: string
+
+  private headerIndex = 2
+
+  get contentStart() {
+    return this.headerIndex + 1
+  }
 
   constructor(config: { groupId: string, sheetId: string, importer: VkImport }) {
     const { sheetId, importer, groupId } = config
 
+    this.title = moment(undefined, undefined, 'ru').format('YYYY MMMM')
     this.doc = new GoogleSpreadsheet(sheetId)
     this.importer = importer
     this.groupId = groupId
@@ -62,8 +70,12 @@ export class VkReport implements IVKReport {
     return !!title
   }
 
-  private setSheet() {
-    const sheet = this.doc.sheetsByIndex[0]
+  private async setSheet() {
+    let sheet = this.doc.sheetsByTitle[this.title]
+
+    if (!sheet) {
+      sheet = await this.doc.addSheet({ title: this.title })
+    }
 
     VkReportLogger.info('Set sheet', sheet.a1SheetName)
     this.sheet = sheet
@@ -74,51 +86,76 @@ export class VkReport implements IVKReport {
       return
     }
 
+    await this.sheet.clear()
     await this.sheet.loadCells()
-    const header = await this.sheet.getCell(0, 0)
 
-    if (header.value) {
-      return VkReportLogger.info('Header not empty', header.value)
-    }
+    await this.sheet.setHeaderRow(
+      ['Пост (id)', 'Дата публикации', 'Охват (общий)', 'Лайки', 'Репосты', 'Переходы по ссылке', 'Комментарии'],
+      2,
+    )
 
-    await this.sheet.setHeaderRow([
-      'Пост (id)',
-      'Дата публикации',
-      'Охват (общий)',
-      'Лайки',
-      'Репосты',
-      'Переходы по ссылке',
-    ])
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    await this.sheet.mergeCells({
+      startRowIndex: 0,
+      endRowIndex: 1,
+      startColumnIndex: 0,
+      endColumnIndex: 7,
+    })
+
+    const label = await this.sheet.getCell(0, 0)
+
+    label.horizontalAlignment = 'CENTER'
+    label.verticalAlignment = 'MIDDLE'
+    label.value = this.title
+
+    await label.save()
   }
 
-  async setReport(reports: Array<(string | number)[]>) {
-    if (!this.sheet) {
-      return
-    }
-
+  async setReport(reports: VKPostReport[]) {
     VkReportLogger.info('setReports', reports.length)
-
-    await this.sheet.insertDimension('ROWS', { startIndex: 1, endIndex: reports.length + 1 })
-    await this.sheet.addRows(reports)
-  }
-
-  async getLatestPost() {
-    if (!this.sheet) {
+    if (!this.sheet || !reports.length) {
       return
     }
 
-    await this.sheet.loadCells()
+    await this.sheet.insertDimension('ROWS', {
+      startIndex: this.contentStart,
+      endIndex: reports.length + this.contentStart,
+    })
+    await this.sheet.addRows(vkReportsToRows(reports))
+    const total = reports.reduce(
+      (acc, val) => {
+        return {
+          reachTotal: acc.reachTotal + val.reachTotal,
+          likes: acc.likes + val.likes,
+          reposts: acc.reposts + val.reposts,
+          links: acc.links + val.links,
+          comments: acc.comments + val.comments,
+        }
+      },
+      { reachTotal: 0, likes: 0, reposts: 0, links: 0, comments: 0 },
+    )
 
-    const latest = await this.sheet.getCellByA1('B2')
-
-    if (!latest.formattedValue) {
-      return
-    }
-
-    VkReportLogger.info('getLatestPost', latest.formattedValue)
-
-    return moment(latest.formattedValue, REPORT_TIME_FORMAT)
+    await this.sheet.addRow(['Итог:', '', total.reachTotal, total.likes, total.reposts, total.links, total.comments])
   }
+
+  // async getLatestPost() {
+  //   if (!this.sheet) {
+  //     return
+  //   }
+  //
+  //   await this.sheet.loadCells()
+  //
+  //   const latest = await this.sheet.getCell(this.contentStart - 1, 1)
+  //
+  //   if (!latest.formattedValue) {
+  //     return
+  //   }
+  //
+  //   VkReportLogger.info('getLatestPost', latest.formattedValue)
+  //
+  //   return moment(latest.formattedValue, REPORT_TIME_FORMAT)
+  // }
 
   async generatePostReport(): Promise<boolean> {
     let connected = false
@@ -133,11 +170,10 @@ export class VkReport implements IVKReport {
       return false
     }
 
-    const latestPostTime = await this.getLatestPost()
-    const reports = await this.getReport(latestPostTime)
+    const reports = await this.getReport(moment().startOf('month'))
 
     await this.setHeader()
-    await this.setReport(vkReportsToRows(reports))
+    await this.setReport(reports)
 
     return true
   }

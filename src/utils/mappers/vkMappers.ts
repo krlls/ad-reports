@@ -60,4 +60,4 @@ export const createVkReport = (posts: Map<string, VkPost>, postStats: VkPostStat
 }
 
 export const vkReportsToRows = (reports: VKPostReport[]): Array<(string | number)[]> =>
-  reports.map((r) => [r.postId, r.date, r.reachTotal, r.likes, r.reposts, r.links])
+  reports.map((r) => [r.postId, r.date, r.reachTotal, r.likes, r.reposts, r.links, r.comments])
